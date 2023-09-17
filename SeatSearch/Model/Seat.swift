@@ -126,7 +126,7 @@ extension Seat {
                                   cons: "There are a lot of cons to this seat.")),
         .init(id: UUID(),
               requriedInfo: .init(name: "Test Seat 4",
-                                  type: .rock,
+                                  type: .other,
                                   location: Location(latitude: 42.36108898757917, longitude: -71.21147496328963),
                                   size: .child,
                                   rating: 1.1,
