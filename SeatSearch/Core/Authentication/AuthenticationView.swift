@@ -32,7 +32,7 @@ struct AuthenticationView: View {
                         .shadow(color: Color.black.opacity(0.1), radius: 25, x: 0, y: 5)
                 }
                 
-                Text("SeatSearch")
+                Text("BenchMark")
                     .font(.title)
                     .bold()
             }
