@@ -44,7 +44,7 @@ final class SeatManager {
                 let path = "images/\(seatId).jpg"
                 let fileRef = storageRef.child(path)
                 
-                let uploadTask = fileRef.putData(imageData, metadata: nil) { metadata, error in
+                _ = fileRef.putData(imageData, metadata: nil) { metadata, error in
                     
                     if error == nil && metadata != nil {
                         

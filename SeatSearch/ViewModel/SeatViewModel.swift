@@ -56,6 +56,7 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         print("TESTING123")
     }
     
+    @MainActor
     func initSeatsList() async throws {
         //originalSeatsList = Seat.data
         //originalSeatsList = try await [SeatManager.shared.getSeat(seatId: "3D9E88C1-5CFF-46F3-B602-39C2BD183899")]
@@ -63,6 +64,7 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         seats = originalSeatsList
     }
     
+    @MainActor
     func refreshSeats() async throws {
         seats = []
         originalSeatsList = try await SeatManager.shared.getAllSeats()
@@ -70,7 +72,9 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func resetSeats() {
-        seats = originalSeatsList
+        DispatchQueue.main.async {
+            self.seats = self.originalSeatsList
+        }
     }
     
     func addSeat(id: UUID, name: String, rating: Double, type: SeatType, size: SeatSize, description: String? = nil, pros: String? = nil, cons: String? = nil, image: UIImage? = nil) async throws {
@@ -81,8 +85,7 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         try await SeatManager.shared.createNewSeat(seatId: id.uuidString, name: name, type: type, location: self.userLocation!, size: size, rating: rating, userCreated: "jpn", image: image, description: description, pros: pros, cons: cons)
         
-        let newSeat = Seat(id: id, requriedInfo: Seat.RequiredInfo(name: name, type: type, location: self.userLocation!, size: size, rating: rating, userCreated: "jpn"),
-                           optionalInfo: Seat.OptionalInfo(image: image, description: description, pros: pros, cons: cons))
+        // let newSeat = Seat(id: id, requriedInfo: Seat.RequiredInfo(name: name, type: type, location: self.userLocation!, size: size, rating: rating, userCreated: "jpn"), optionalInfo: Seat.OptionalInfo(image: image, description: description, pros: pros, cons: cons))
         
         //originalSeatsList.append(newSeat)
         try await refreshSeats()
@@ -90,28 +93,38 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func reverseSeatsList() {
-        seats.reverse()
+        DispatchQueue.main.async {
+            self.seats.reverse()
+        }
     }
     
     func shuffleSeatsList() {
-        seats.shuffle()
+        DispatchQueue.main.async {
+            self.seats.shuffle()
+        }
     }
     
     func removeFirstSeatsList() {
-        seats.removeFirst()
+        DispatchQueue.main.async {
+            self.seats.removeFirst()
+        }
     }
     
     func removeLastSeatsList() {
-        seats.removeLast()
+        DispatchQueue.main.async {
+            self.seats.removeLast()
+        }
     }
     
     func clearSeatsList() {
-        seats.removeAll()
+        DispatchQueue.main.async {
+            self.seats.removeAll()
+        }
     }
     
     func sortSeatsByDistance() {
-        let seatsWithDistance: [(Seat, Double)] = seats.map { seat -> (Seat, Double) in
-            let distance: Double = getSeatDistance(seat: seat)
+        let seatsWithDistance: [(Seat, Double)] = self.seats.map { seat -> (Seat, Double) in
+            let distance: Double = self.getSeatDistance(seat: seat)
             return (seat, distance)
         }
 
@@ -119,31 +132,45 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         let sortedSeats: [Seat] = sortedTuples.map { $0.0 }
         
-        seats = sortedSeats
+        DispatchQueue.main.async {
+            self.seats = sortedSeats
+        }
     }
     
     func sortSeatsByNameAToZ() {
-        seats.sort { $0.requriedInfo.name < $1.requriedInfo.name }
+        DispatchQueue.main.async {
+            self.seats.sort { $0.requriedInfo.name < $1.requriedInfo.name }
+        }
     }
     
     func sortSeatsByTypeAToZ() {
-        seats.sort { $0.requriedInfo.type.id < $1.requriedInfo.type.id }
+        DispatchQueue.main.async {
+            self.seats.sort { $0.requriedInfo.type.id < $1.requriedInfo.type.id }
+        }
     }
     
     func sortSeatsBySizeSmallestToLargest() {
-        seats.sort { $0.requriedInfo.size.sortOrder < $1.requriedInfo.size.sortOrder }
+        DispatchQueue.main.async {
+            self.seats.sort { $0.requriedInfo.size.sortOrder < $1.requriedInfo.size.sortOrder }
+        }
     }
     
     func sortSeatsBySizeLargestToSmallest() {
-        seats.sort { $0.requriedInfo.size.sortOrder > $1.requriedInfo.size.sortOrder }
+        DispatchQueue.main.async {
+            self.seats.sort { $0.requriedInfo.size.sortOrder > $1.requriedInfo.size.sortOrder }
+        }
     }
     
     func sortSeatsByRatingWorstToBest() {
-        seats.sort { $0.requriedInfo.rating < $1.requriedInfo.rating }
+        DispatchQueue.main.async {
+            self.seats.sort { $0.requriedInfo.rating < $1.requriedInfo.rating }
+        }
     }
     
     func sortSeatsByRatingBestToWorst() {
-        seats.sort { $0.requriedInfo.rating > $1.requriedInfo.rating }
+        DispatchQueue.main.async {
+            self.seats.sort { $0.requriedInfo.rating > $1.requriedInfo.rating }
+        }
     }
     
     func filterByRating(stars: Int) {
@@ -176,7 +203,9 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             filteredList = seats.filter { $0.requriedInfo.rating >= filterNum && $0.requriedInfo.rating < filterNum + 1.0}
         }
         
-        seats = filteredList
+        DispatchQueue.main.async {
+            self.seats = filteredList
+        }
     }
     
     func startLocationUpdates() {
