@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DC52C6932A86C34F0096BA5F"
-               BuildableName = "SeatSearch.app"
-               BlueprintName = "SeatSearch"
-               ReferencedContainer = "container:SeatSearch.xcodeproj">
+               BuildableName = "BenchMark.app"
+               BlueprintName = "BenchMark"
+               ReferencedContainer = "container:BenchMark.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -44,9 +44,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DC52C6932A86C34F0096BA5F"
-            BuildableName = "SeatSearch.app"
-            BlueprintName = "SeatSearch"
-            ReferencedContainer = "container:SeatSearch.xcodeproj">
+            BuildableName = "BenchMark.app"
+            BlueprintName = "BenchMark"
+            ReferencedContainer = "container:BenchMark.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <LocationScenarioReference
@@ -65,9 +65,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DC52C6932A86C34F0096BA5F"
-            BuildableName = "SeatSearch.app"
-            BlueprintName = "SeatSearch"
-            ReferencedContainer = "container:SeatSearch.xcodeproj">
+            BuildableName = "BenchMark.app"
+            BlueprintName = "BenchMark"
+            ReferencedContainer = "container:BenchMark.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -9,10 +9,13 @@ import SwiftUI
 
 struct BackButton: View {
     
+    @ObservedObject var vm: SeatViewModel
+    
     @Binding var show: Bool
     
     var body: some View {
         Button(action: {
+            vm.moveBottomSheetMiddle()
             self.show.toggle()
         }, label: {
             HStack {
@@ -116,7 +119,7 @@ struct DetailedSeatView: View {
     var body: some View {
         
         VStack(alignment: .leading) {
-            BackButton(show: $showDetailedView)
+            BackButton(vm: vm, show: $showDetailedView)
             
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {

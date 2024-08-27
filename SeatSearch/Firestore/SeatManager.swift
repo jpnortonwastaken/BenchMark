@@ -8,12 +8,25 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import FirebaseStorage
 
 final class SeatManager {
     static let shared = SeatManager()
     private init() { }
     
-    func createNewSeat(seatId: String, name: String, type: SeatType, location: Location, size: SeatSize, rating: Double, userCreated: String, description: String?, pros: String?, cons: String?) async throws {
+    func createNewSeat(
+        seatId: String,
+        name: String,
+        type: SeatType,
+        location: Location,
+        size: SeatSize,
+        rating: Double,
+        userCreated: String,
+        image: UIImage?,
+        description: String?,
+        pros: String?,
+        cons: String?
+    ) async throws {
         var seatData: [String:Any] = [
             "seatId" : seatId,
             "name" : name,
@@ -24,6 +37,23 @@ final class SeatManager {
             "userCreated" : userCreated,
             "dateCreated" : Timestamp()
         ]
+        if let img = image {
+            let storageRef = Storage.storage().reference()
+            
+            if let imageData = img.jpegData(compressionQuality: 0.7) {
+                let path = "images/\(seatId).jpg"
+                let fileRef = storageRef.child(path)
+                
+                let uploadTask = fileRef.putData(imageData, metadata: nil) { metadata, error in
+                    
+                    if error == nil && metadata != nil {
+                        
+                    }
+                }
+                
+                seatData["image"] = path
+            }
+        }
         if let d = description {
             seatData["description"] = d
         }
@@ -50,11 +80,46 @@ final class SeatManager {
         let size = data["size"] as! String
         let rating = data["rating"] as! Double
         let userCreated = data["userCreated"] as! String
+        
+        var image: UIImage? = nil
+        if let imagePath = data["image"] as? String {
+            let storageRef = Storage.storage().reference()
+            let fileRef = storageRef.child(imagePath)
+            
+            do {
+                let imageData = try await fileRef.data(maxSize: 5 * 1024 * 1024)
+                image = UIImage(data: imageData)
+            } catch {
+                print("Error downloading image: \(error)")
+            }
+        } else {
+            print("No image path found for this seat.")
+        }
+        
         let description = data["description"] as? String
         let pros = data["pros"] as? String
         let cons = data["cons"] as? String
-        
-        return Seat(id: UUID(uuidString: seatId)!, requriedInfo: Seat.RequiredInfo(name: name, type: SeatType(rawValue: type)!, location: Location(latitude: location.latitude, longitude: location.longitude), size: SeatSize(rawValue: size)!, rating: rating, userCreated: userCreated), optionalInfo: Seat.OptionalInfo(image: nil, description: description, pros: pros, cons: cons))
+                
+        return Seat(
+            id: UUID(uuidString: seatId)!,
+            requriedInfo: Seat.RequiredInfo(
+                name: name,
+                type: SeatType(rawValue: type)!,
+                location: Location(
+                    latitude: location.latitude,
+                    longitude: location.longitude
+                ),
+                size: SeatSize(rawValue: size)!,
+                rating: rating,
+                userCreated: userCreated
+            ),
+            optionalInfo: Seat.OptionalInfo(
+                image: image,
+                description: description,
+                pros: pros,
+                cons: cons
+            )
+        )
     }
     
     func getAllSeats() async throws -> [Seat] {
@@ -76,21 +141,44 @@ final class SeatManager {
                 continue
             }
             
+            var image: UIImage? = nil
+            if let imagePath = data["image"] as? String {
+                let storageRef = Storage.storage().reference()
+                let fileRef = storageRef.child(imagePath)
+                
+                do {
+                    let imageData = try await fileRef.data(maxSize: 5 * 1024 * 1024)
+                    image = UIImage(data: imageData)
+                } catch {
+                    print("Error downloading image: \(error)")
+                }
+            } else {
+                print("No image path found for this seat.")
+            }
+            
             let description = data["description"] as? String
             let pros = data["pros"] as? String
             let cons = data["cons"] as? String
-            
+                        
             let seat = Seat(
                 id: UUID(uuidString: seatId)!,
                 requriedInfo: Seat.RequiredInfo(
                     name: name,
                     type: SeatType(rawValue: type)!,
-                    location: Location(latitude: location.latitude, longitude: location.longitude),
+                    location: Location(
+                        latitude: location.latitude,
+                        longitude: location.longitude
+                    ),
                     size: SeatSize(rawValue: size)!,
                     rating: rating,
                     userCreated: userCreated
                 ),
-                optionalInfo: Seat.OptionalInfo(image: nil, description: description, pros: pros, cons: cons)
+                optionalInfo: Seat.OptionalInfo(
+                    image: image,
+                    description: description,
+                    pros: pros,
+                    cons: cons
+                )
             )
             
             seats.append(seat)

@@ -16,12 +16,6 @@ struct MapView: View {
     
     @State var showingBottomSheet: Bool = true
     
-    @State var bottomSheetPosition: BottomSheetPosition = .relative(0.5)
-    
-    func updateButtomSheetPosition() {
-        viewModel.updateBottomSheetPos(bsp: bottomSheetPosition)
-    }
-    
     var body: some View {
         ZStack(alignment: .topTrailing) {
             
@@ -30,7 +24,6 @@ struct MapView: View {
                     SeatMapMarkerView()
                         .scaleEffect(viewModel.mapLocation == seat.getLocation(seat: seat) ? 1 : 0.7)
                         .onTapGesture {
-                            updateButtomSheetPosition()
                             viewModel.mapLocation = seat.getLocation(seat: seat)
                             viewModel.selectedSeat = seat
                             viewModel.showDetailedView = true
@@ -40,7 +33,6 @@ struct MapView: View {
                 .ignoresSafeArea()
             
             Button(action: {
-                updateButtomSheetPosition()
                 viewModel.focusUserLocation()
             }) {
                 Image(systemName: "location")
@@ -55,7 +47,7 @@ struct MapView: View {
 
         }
         .bottomSheet(
-            bottomSheetPosition: $bottomSheetPosition,
+            bottomSheetPosition: $viewModel.bottomSheetPosition,
             switchablePositions: [
                 .relativeBottom(0.19),
                 .relative(0.5),

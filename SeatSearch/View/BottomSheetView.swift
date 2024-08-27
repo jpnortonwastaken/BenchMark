@@ -13,7 +13,13 @@ struct RefreshButtonView: View {
         
     var body: some View {
         Button {
-            vm.resetSeats()
+            Task {
+                do {
+                    try await vm.refreshSeats()
+                } catch {
+                    print("Failed to refresh seats: \(error)")
+                }
+            }
         } label: {
             Image(systemName: "arrow.clockwise.circle.fill")
                 .symbolRenderingMode(.hierarchical)
@@ -134,25 +140,45 @@ struct SeatListView: View {
     @Binding var showDetailedView: Bool
         
     var body: some View {
-        ScrollView {
-            ForEach(vm.seats) { seat in
-                Button(action: {
-                    vm.mapLocation = Location(latitude: seat.requriedInfo.location.latitude, longitude: seat.requriedInfo.location.longitude)
-                    MapView().updateButtomSheetPosition()
-                    vm.selectedSeat = seat
-                    vm.showDetailedView = true
-                }, label: {
-                    SimpleSeatView(vm: vm, seat: seat)
-                        .padding([.leading, .trailing])
-                })
-                .foregroundColor(.primary)
+        ZStack {
+            if vm.seats.isEmpty {
+                VStack {
+                    Spacer()
+                    ProgressView("Loading seats...")
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .padding(.bottom, 125)
+                    Spacer()
+                }
+            } else {
+                ScrollView {
+                    ForEach(vm.seats) { seat in
+                        Button(action: {
+                            vm.mapLocation = Location(latitude: seat.requriedInfo.location.latitude, longitude: seat.requriedInfo.location.longitude)
+                            vm.moveBottomSheetUp()
+                            vm.selectedSeat = seat
+                            vm.showDetailedView = true
+                        }, label: {
+                            SimpleSeatView(vm: vm, seat: seat)
+                                .padding([.leading, .trailing])
+                        })
+                        .foregroundColor(.primary)
+                    }
+                    .padding(.top, 2)
+                    .padding(.bottom, 100)
+                }
+                .refreshable {
+                    Task {
+                        do {
+                            try await vm.refreshSeats()
+                        } catch {
+                            print("Failed to refresh seats: \(error)")
+                        }
+                    }
+                }
+                .transition(.move(edge: .leading))
+                //.animation(.default, value: showDetailedView)
             }
-            .padding(.top, 2)
-            .padding(.bottom, 100)
         }
-        //.refreshable { print("refresh") }
-        .transition(.move(edge: .leading))
-        //.animation(.default, value: showDetailedView)
     }
 }
 

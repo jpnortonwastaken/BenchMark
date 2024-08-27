@@ -17,13 +17,13 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     var originalSeatsList: [Seat] = []
     
-    var bottomSheetPos: BottomSheetPosition = .relative(0.5)
+    @Published var bottomSheetPosition: BottomSheetPosition = .relative(0.5)
     
     @Published var region = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 25.7749, longitude: -97.4194),
             span: MKCoordinateSpan(latitudeDelta: 60.0, longitudeDelta: 60.0)
         )
-        
+    
     let locationManager = CLLocationManager()
     
     @Published var mapLocation: Location = Location(latitude: 25.7749, longitude: -97.4194) {
@@ -64,6 +64,7 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func refreshSeats() async throws {
+        seats = []
         originalSeatsList = try await SeatManager.shared.getAllSeats()
         seats = originalSeatsList
     }
@@ -78,7 +79,7 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         
-        try await SeatManager.shared.createNewSeat(seatId: id.uuidString, name: name, type: type, location: self.userLocation!, size: size, rating: rating, userCreated: "jpn", description: description, pros: pros, cons: cons)
+        try await SeatManager.shared.createNewSeat(seatId: id.uuidString, name: name, type: type, location: self.userLocation!, size: size, rating: rating, userCreated: "jpn", image: image, description: description, pros: pros, cons: cons)
         
         let newSeat = Seat(id: id, requriedInfo: Seat.RequiredInfo(name: name, type: type, location: self.userLocation!, size: size, rating: rating, userCreated: "jpn"),
                            optionalInfo: Seat.OptionalInfo(image: image, description: description, pros: pros, cons: cons))
@@ -178,10 +179,6 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         seats = filteredList
     }
     
-    func updateBottomSheetPos(bsp: BottomSheetPosition) {
-        bottomSheetPos = bsp
-    }
-    
     func startLocationUpdates() {
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         locationManager.startUpdatingLocation()
@@ -233,7 +230,7 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         var adjustedLatitude = lat
         let Longitude = lon
         
-        if self.bottomSheetPos != .relativeBottom(0.19) {
+        if self.bottomSheetPosition != .relativeBottom(0.19) {
             adjustedLatitude = lat - 0.0025
         }
         
@@ -269,5 +266,21 @@ class SeatViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         let distanceInFeet = distanceInMeters * 3.28084
 
         return distanceInFeet
+    }
+    
+    func changeBottomSheetPosition(newbsp: BottomSheetPosition) {
+        bottomSheetPosition = newbsp
+    }
+    
+    func moveBottomSheetUp() {
+        changeBottomSheetPosition(newbsp: .relativeTop(0.975))
+    }
+    
+    func moveBottomSheetMiddle() {
+        changeBottomSheetPosition(newbsp: .relativeTop(0.5))
+    }
+    
+    func moveBottomSheetDown() {
+        changeBottomSheetPosition(newbsp: .relativeTop(0.19))
     }
 }
